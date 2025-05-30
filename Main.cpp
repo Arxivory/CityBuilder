@@ -15,6 +15,7 @@
 #include "Gizmo.h"
 #include "Skybox.h"
 #include <map>
+#include "Base.h"
 
 glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -42,10 +43,11 @@ RoadManager roadManager;
 
 Gizmo gizmo;
 Skybox skybox;
+Base base;
 bool dragging = false;
 
 void processInput(GLFWwindow* window) {
-    if (!gizmo.isDragging()) {  // Only allow camera movement when not dragging gizmo
+    if (!gizmo.isDragging()) {  
         float cameraSpeed = 2.5f * deltaTime;
 
         if (keys[GLFW_KEY_W])
@@ -58,7 +60,6 @@ void processInput(GLFWwindow* window) {
             cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     }
 
-    // Mode switching
     if (keys[GLFW_KEY_G]) gizmo.setMode(GizmoMode::TRANSLATE);
     if (keys[GLFW_KEY_R]) gizmo.setMode(GizmoMode::ROTATE);
     if (keys[GLFW_KEY_T]) gizmo.setMode(GizmoMode::SCALE);
@@ -85,16 +86,16 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
     else if (gizmo.isDragging() && selectedRoad && !selectedBuilding) {
         gizmo.updateDragRoad(glm::vec2(xpos, ypos), selectedRoad);
     }
-    else if (mousePressed) {  // Only rotate camera when mouse is pressed AND not dragging gizmo
+    else if (mousePressed) {  
         if (firstMouse) {
             lastX = xpos;
             lastY = ypos;
             firstMouse = false;
-            return;  // Skip the first frame to avoid jump
+            return;  
         }
 
         float xoffset = xpos - lastX;
-        float yoffset = lastY - ypos; // Reversed since y-coordinates go from bottom to top
+        float yoffset = lastY - ypos; 
         lastX = xpos;
         lastY = ypos;
 
@@ -105,13 +106,11 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
         cameraYaw += xoffset;
         cameraPitch += yoffset;
 
-        // Constrain pitch
         if (cameraPitch > 89.0f)
             cameraPitch = 89.0f;
         if (cameraPitch < -89.0f)
             cameraPitch = -89.0f;
 
-        // Update camera front vector
         glm::vec3 direction;
         direction.x = cos(glm::radians(cameraYaw)) * cos(glm::radians(cameraPitch));
         direction.y = sin(glm::radians(cameraPitch));
@@ -152,7 +151,6 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 
             glm::vec3 rayDir = screenToWorldRay(mouseX, mouseY, width, height, view, projection);
 
-            // Check gizmo axis selection (simplified - checking spheres at axis endpoints)
             float gizmoSize = 0.3f;
             glm::vec3 xAxisEnd = cubePos + glm::vec3(gizmoSize, 0, 0);
             glm::vec3 yAxisEnd = cubePos + glm::vec3(0, gizmoSize, 0);
@@ -245,6 +243,7 @@ int main() {
     glm::vec3 lightPos(4.0f, 8.0f, 2.0f);
 
     skybox.init();
+    base.init();
     objectManager.init();
     roadManager.init();
 
@@ -272,10 +271,13 @@ int main() {
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 8000.0f);
 
         skybox.render(view, projection);
+
+		base.render(view, projection);
         
         objectManager.renderObjects(view, projection, lightPos, cameraPos);
 
         roadManager.renderObjects(view, projection, lightPos, cameraPos);
+
 
         Building* selectedBuilding = objectManager.getSelectedBuilding();
         Road* selectedRoad = roadManager.getSelectedRoad();
