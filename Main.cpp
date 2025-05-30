@@ -271,6 +271,7 @@ int main() {
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 8000.0f);
 
+        skybox.render(view, projection);
         
         objectManager.renderObjects(view, projection, lightPos, cameraPos);
 

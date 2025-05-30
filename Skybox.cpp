@@ -49,7 +49,7 @@ void Skybox::init() {
     setupShaderProgram();
 
     // Load skybox texture
-    textureID = textureloader.loadTexture("skybox.jpg"); 
+    textureID = textureloader.loadTexture("textures/skybox.jpg"); 
     if (textureID == 0) {
         cerr << "Failed to load skybox texture" << endl;
         return;
